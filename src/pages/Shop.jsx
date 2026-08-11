@@ -14,6 +14,7 @@ export default function Shop() {
   const categoryParam = searchParams.get("category") || "";
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [quantities, setQuantities] = useState({});
 
   const categories = db.getCategories();
   const products = db.getProducts(selectedCategory || null);
@@ -24,6 +25,9 @@ export default function Shop() {
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getQty = (id) => quantities[id] || 1;
+  const setQty = (id, value) => setQuantities({ ...quantities, [id]: value });
+
   const handleCategoryChange = (e) => {
     const val = e.target.value;
     setSelectedCategory(val);
@@ -32,7 +36,7 @@ export default function Shop() {
   };
 
   const handleAddToCart = (product) => {
-    addToCart(product, 1);
+    addToCart(product, getQty(product.id));
     showAlert("success", `${product.name} added to cart!`);
   };
 
@@ -82,6 +86,16 @@ export default function Shop() {
                     <p className="product-stock">
                       {product.stock > 0 ? `In Stock (${product.stock})` : "Out of Stock"}
                     </p>
+                    {product.stock > 0 && (
+                      <div className="product-qty">
+                        <label>Qty:</label>
+                        <div className="qty-control">
+                          <button onClick={() => setQty(product.id, Math.max(1, getQty(product.id) - 1))}>-</button>
+                          <span>{getQty(product.id)}</span>
+                          <button onClick={() => setQty(product.id, Math.min(product.stock, getQty(product.id) + 1))}>+</button>
+                        </div>
+                      </div>
+                    )}
                     <div className="product-actions">
                       <Link to={`/product/${product.id}`} className="btn btn-outline btn-sm">
                         View Details

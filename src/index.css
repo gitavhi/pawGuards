@@ -473,7 +473,20 @@ img {
 .product-stock {
   font-size: 0.85rem;
   color: var(--ppp-text-muted);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.product-qty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.product-qty label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ppp-text-muted);
 }
 
 .product-actions {

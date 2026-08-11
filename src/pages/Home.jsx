@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../data/db";
 import { useCart } from "../context/CartContext";
@@ -15,9 +16,13 @@ export default function Home() {
   const products = db.getProducts().slice(-6).reverse();
   const { addToCart } = useCart();
   const { showAlert } = useAlert();
+  const [quantities, setQuantities] = useState({});
+
+  const getQty = (id) => quantities[id] || 1;
+  const setQty = (id, value) => setQuantities({ ...quantities, [id]: value });
 
   const handleAddToCart = (product) => {
-    addToCart(product, 1);
+    addToCart(product, getQty(product.id));
     showAlert("success", `${product.name} added to cart!`);
   };
 
@@ -87,6 +92,16 @@ export default function Home() {
                       ? `In Stock (${product.stock})`
                       : "Out of Stock"}
                   </p>
+                  {product.stock > 0 && (
+                    <div className="product-qty">
+                      <label>Qty:</label>
+                      <div className="qty-control">
+                        <button onClick={() => setQty(product.id, Math.max(1, getQty(product.id) - 1))}>-</button>
+                        <span>{getQty(product.id)}</span>
+                        <button onClick={() => setQty(product.id, Math.min(product.stock, getQty(product.id) + 1))}>+</button>
+                      </div>
+                    </div>
+                  )}
                   <div className="product-actions">
                     <Link
                       to={`/product/${product.id}`}

@@ -30,7 +30,6 @@ export default function Navbar() {
           </li>
           {isLoggedIn ? (
             <>
-              <li><Link to="/orders">My Orders</Link></li>
               {isAdmin && <li><Link to="/admin">Admin Panel</Link></li>}
               <li>
                 <span style={{ color: "var(--neutral-500)", fontSize: "0.9rem" }}>

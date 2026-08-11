@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { useAlert } from "../context/AlertContext";
 import { db } from "../data/db";
+import { sendOrderNotification } from "../utils/email";
 
 function formatPrice(price) {
   return "Rs. " + Number(price).toLocaleString("en-IN", { minimumFractionDigits: 0 });
@@ -28,6 +29,7 @@ export default function Checkout() {
     }
     const order = db.placeOrder(user.id, items, total, address.trim(), phone.trim());
     clearCart();
+    sendOrderNotification(order, user);
     showAlert("success", `Order #${order.id} placed successfully!`);
     navigate(`/orders/${order.id}`);
   };

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
@@ -6,6 +6,10 @@ export default function Navbar() {
   const { user, isLoggedIn, isAdmin, logout } = useAuth();
   const { count } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path) =>
+    location.pathname === path || location.pathname.startsWith(path + "/");
 
   const handleLogout = () => {
     logout();
@@ -20,31 +24,55 @@ export default function Navbar() {
           PAWGUARDS
         </Link>
         <ul className="nav-links">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/shop">Shop</Link></li>
           <li>
-            <Link to="/cart" className="cart-link">
-              Cart
+            <Link to="/" className={isActive("/") && location.pathname === "/" ? "active" : ""}>
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link to="/shop" className={isActive("/shop") ? "active" : ""}>
+              Shop
+            </Link>
+          </li>
+          <li>
+            <Link to="/cart" className={`cart-link${isActive("/cart") ? " active" : ""}`}>
+              🛒 Cart
               {count > 0 && <span className="cart-count">{count}</span>}
             </Link>
           </li>
+          {isLoggedIn && (
+            <li>
+              <Link to="/orders" className={isActive("/orders") ? "active" : ""}>
+                My Orders
+              </Link>
+            </li>
+          )}
+          {isLoggedIn && isAdmin && (
+            <li>
+              <Link to="/admin" className={isActive("/admin") ? "active" : ""}>
+                Admin Panel
+              </Link>
+            </li>
+          )}
           {isLoggedIn ? (
             <>
-              {isAdmin && <li><Link to="/admin">Admin Panel</Link></li>}
-              <li>
-                <span style={{ color: "var(--neutral-500)", fontSize: "0.9rem" }}>
-                  Hi, {user.full_name}
-                </span>
+              <li className="nav-user">
+                <span className="nav-avatar">{user.full_name.charAt(0).toUpperCase()}</span>
+                <span className="nav-name">{user.full_name}</span>
               </li>
               <li>
                 <button onClick={handleLogout} className="btn btn-outline btn-sm">
-                  Logout
+                  ⏻ Logout
                 </button>
               </li>
             </>
           ) : (
             <>
-              <li><Link to="/login">Login</Link></li>
+              <li>
+                <Link to="/login" className="btn btn-outline btn-sm">
+                  Login
+                </Link>
+              </li>
               <li>
                 <Link to="/register" className="btn btn-primary btn-sm">
                   Register

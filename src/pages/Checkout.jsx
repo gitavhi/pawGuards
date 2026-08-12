@@ -5,6 +5,9 @@ import { useCart } from "../context/CartContext";
 import { useAlert } from "../context/AlertContext";
 import { db } from "../data/db";
 import { sendOrderNotification } from "../utils/email";
+import { validatePhone } from "../utils/validation";
+
+const errorStyle = { color: "var(--error)", fontSize: "0.85rem", marginTop: "6px" };
 
 function formatPrice(price) {
   return "Rs. " + Number(price).toLocaleString("en-IN", { minimumFractionDigits: 0 });
@@ -17,14 +20,17 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [errors, setErrors] = useState({});
 
   if (!isLoggedIn) { navigate("/login"); return null; }
   if (items.length === 0) { navigate("/cart"); return null; }
 
   const handlePlaceOrder = (e) => {
     e.preventDefault();
-    if (!phone.trim() || !address.trim()) {
-      showAlert("danger", "Please fill in all required fields.");
+    const phoneError = validatePhone(phone);
+    const addressError = address.trim() ? "" : "Shipping address is required.";
+    if (phoneError || addressError) {
+      setErrors({ phone: phoneError, address: addressError });
       return;
     }
     const order = db.placeOrder(user.id, items, total, address.trim(), phone.trim());
@@ -48,11 +54,13 @@ export default function Checkout() {
               </div>
               <div className="form-group">
                 <label>Phone Number *</label>
-                <input type="text" className="form-control" placeholder="Enter your phone number" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                <input type="tel" className="form-control" placeholder="Enter your phone number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                {errors.phone && <p style={errorStyle}>{errors.phone}</p>}
               </div>
               <div className="form-group">
                 <label>Shipping Address *</label>
                 <textarea className="form-control" placeholder="Enter your full shipping address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+                {errors.address && <p style={errorStyle}>{errors.address}</p>}
               </div>
               <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>Place Order</button>
             </div>

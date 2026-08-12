@@ -6,6 +6,16 @@ function formatPrice(price) {
   return "Rs. " + Number(price).toLocaleString("en-IN", { minimumFractionDigits: 0 });
 }
 
+function formatDateTime(dateStr) {
+  return new Date(dateStr).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function Orders() {
   const { user, isLoggedIn } = useAuth();
   const navigate = useNavigate();
@@ -22,7 +32,8 @@ export default function Orders() {
             <thead>
               <tr>
                 <th>Order ID</th>
-                <th>Date</th>
+                <th>Date &amp; Time</th>
+                <th>Items</th>
                 <th>Total</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -31,11 +42,20 @@ export default function Orders() {
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id}>
-                  <td>#{order.id}</td>
-                  <td>{new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
-                  <td>{formatPrice(order.total_amount)}</td>
+                  <td><strong>#{order.id}</strong></td>
+                  <td>{formatDateTime(order.created_at)}</td>
+                  <td>
+                    <div style={{ lineHeight: 1.6 }}>
+                      {order.items.map((item, idx) => (
+                        <div key={idx} style={{ fontSize: "0.9rem" }}>
+                          {item.name} <span style={{ color: "var(--ppp-text-muted)" }}>x{item.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td><strong>{formatPrice(order.total_amount)}</strong></td>
                   <td><span className={`badge badge-${order.status}`}>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span></td>
-                  <td><Link to={`/orders/${order.id}`} className="btn btn-sm btn-outline">View</Link></td>
+                  <td><Link to={`/orders/${order.id}`} className="btn btn-sm btn-outline">View Details</Link></td>
                 </tr>
               ))}
             </tbody>
